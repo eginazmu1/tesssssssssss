@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untuk Kamu ❤️</title>
+    <link rel="stylesheet" href="/public/css/styles.css">
+    <link rel="stylesheet" href="/src/css/input.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+        .animate-float {
+            animation: float 15s linear infinite;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 2s infinite;
+        }
+        .firework {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ff69b4;
+            border-radius: 50%;
+        }
+        .admire-item {
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        .admire-item.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .typing-cursor::after {
+            content: '|';
+            animation: cursor 1s infinite;
+        }
+        @keyframes cursor {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 to-red-200 min-h-screen flex items-center justify-center p-4 overflow-x-hidden">
+    <!-- Music Control -->
+    <button id="musicControl" class="fixed top-4 right-4 z-50 bg-white/80 p-3 rounded-full shadow-lg hover:scale-110 transition-transform">
+        <svg class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+        </svg>
+    </button>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-gradient-to-br from-pink-100 to-red-200 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="text-6xl animate-bounce mb-4">❤️</div>
+            <div class="text-2xl text-red-600 font-semibold">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Floating Hearts Background -->
+    <div id="floating-hearts" class="fixed inset-0 pointer-events-none"></div>
+
+    <!-- Main Container -->
+    <div class="max-w-lg w-full relative">
+        <!-- Welcome Page -->
+        <div id="welcome" class="page bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 text-center transform transition-all duration-500">
+            <div class="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
+                <div class="firework"></div>
+                <div class="firework"></div>
+                <div class="firework"></div>
+            </div>
+            <h1 class="text-4xl font-bold text-red-500 mb-6">Hey Sayang! ❤️</h1>
+            <p class="text-gray-600 text-lg mb-8">Ada sesuatu spesial untukmu...</p>
+            <button onclick="showPage('main')" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-full font-semibold transform transition hover:scale-105 active:scale-95 shadow-lg animate-pulse-slow">
+                Buka Pesannya
+            </button>
+        </div>
+
+        <!-- Main Page -->
+        <div id="main" class="page hidden bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 text-center">
+            <h1 class="text-3xl font-bold text-red-500 mb-6">Untuk Orang Spesialku</h1>
+            <p class="text-gray-600 text-lg mb-6">Aku ingin berbagi sesuatu denganmu...</p>
+            <div class="text-6xl mb-8 animate-pulse">❤️</div>
+            <div class="space-y-4">
+                <button onclick="showPage('admire')" class="w-full bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold transform transition hover:scale-105 active:scale-95">
+                    Hal Yang Kukagumi
+                </button>
+                <button onclick="showPage('message')" class="w-full bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-xl font-semibold transform transition hover:scale-105 active:scale-95">
+                    Pesan Cinta
+                </button>
+                <button onclick="showPage('quiz')" class="w-full bg-rose-500 hover:bg-rose-600 text-white px-6 py-3 rounded-xl font-semibold transform transition hover:scale-105 active:scale-95">
+                    Kuis Kecil
+                </button>
+                <button onclick="showLoveCalculator()" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold transform transition hover:scale-105 active:scale-95">
+                    Love Calculator
+                </button>
+            </div>
+        </div>
+
+        <!-- Admire Page -->
+        <div id="admire" class="page hidden bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+            <h1 class="text-3xl font-bold text-red-500 mb-6 text-center">10 Hal Yang Kukagumi Darimu</h1>
+            <div id="admireList" class="space-y-3"></div>
+            <div class="mt-6 text-center">
+                <button onclick="showPage('main')" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-full font-semibold transform transition hover:scale-105 active:scale-95">
+                    Kembali
+                </button>
+            </div>
+        </div>
+
+        <!-- Message Page -->
+        <div id="message" class="page hidden bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+            <h1 class="text-3xl font-bold text-red-500 mb-6 text-center">Pesan Cinta Untukmu</h1>
+            <div class="space-y-6 text-gray-700">
+                <p id="typingText" class="text-xl font-semibold typing-cursor"></p>
+                <p id="messageContent" class="text-lg leading-relaxed opacity-0 transition-opacity duration-1000">
+                    Setiap hari bersamamu adalah anugerah terindah dalam hidupku. 
+                    Kamu adalah alasan mengapa aku tersenyum setiap pagi, 
+                    inspirasi di balik setiap mimpiku, dan kekuatan di setiap langkahku.
+                </p>
+                <p id="loveSignature" class="text-xl font-semibold opacity-0 transition-opacity duration-1000">
+                    Aku Mencintaimu ❤️
+                </p>
+            </div>
+            <div class="mt-8 text-center">
+                <button onclick="showPage('main')" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-full font-semibold transform transition hover:scale-105 active:scale-95">
+                    Kembali
+                </button>
+            </div>
+        </div>
+
+        <!-- Quiz Page -->
+        <div id="quiz" class="page hidden bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+            <h1 class="text-3xl font-bold text-red-500 mb-6 text-center">Kuis Kecil</h1>
+            <div id="quizContainer" class="space-y-6"></div>
+            <div class="mt-8 text-center">
+                <button onclick="showPage('main')" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-full font-semibold transform transition hover:scale-105 active:scale-95">
+                    Kembali
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentQuiz = 0;
+        let score = 0;
+        let isMusicPlaying = false;
+        const bgMusic = new Audio('/public/audio/Batas Senja - Menceritakanmu.mp3');
+        bgMusic.loop = true;
+        
+        // Quiz questions data
+        const quizQuestions = [
+            {
+                question: "Kapan pertama kali kita bertemu?",
+                options: ["Di kampus", "Di cafe", "Di taman"],
+                correct: 0
+            },
+            {
+                question: "Apa makanan favoritku?",
+                options: ["Nasi Goreng", "Mie Ayam", "Sate"],
+                correct: 1
+            }
+        ];
+        
+        // Admire items data
+        const admireItems = [
+            "Senyummu yang selalu mencerahkan hariku",
+            "Ketulusan hatimu yang tak pernah berubah",
+            "Caramu memandang dunia dengan positif",
+            "Kegigihanmu dalam menghadapi tantangan",
+            "Kepintaranmu yang selalu membuatku kagum",
+            "Perhatianmu pada hal-hal kecil",
+            "Tawamu yang selalu menular",
+            "Semangatmu yang tak pernah padam",
+            "Caramu memperlakukan orang lain dengan baik",
+            "Kesetiaanmu yang tak pernah kuragukan"
+        ];
+        
+        // Initialize page
+        window.onload = function() {
+            // Hide loading screen
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loadingScreen');
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => loadingScreen.style.display = 'none', 500);
+            }, 2000);
+        
+            // Create floating hearts
+            createFloatingHearts();
+        
+            // Initialize admire list
+            initializeAdmireList();
+        
+            // Show welcome page
+            showPage('welcome');
+        
+            // Initialize music control
+            initializeMusicControl();
+        };
+        
+        // Music Control
+        function initializeMusicControl() {
+            const musicControl = document.getElementById('musicControl');
+            musicControl.addEventListener('click', () => {
+                if (isMusicPlaying) {
+                    bgMusic.pause();
+                    musicControl.classList.remove('text-pink-500');
+                    musicControl.classList.add('text-red-500');
+                } else {
+                    bgMusic.play().catch(error => {
+                        console.log("Audio play failed:", error);
+                    });
+                    musicControl.classList.remove('text-red-500');
+                    musicControl.classList.add('text-pink-500');
+                }
+                isMusicPlaying = !isMusicPlaying;
+            });
+        }
+        
+        // Page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            const targetPage = document.getElementById(pageId);
+            targetPage.classList.remove('hidden');
+        
+            if (pageId === 'message') {
+                typeMessage();
+            } else if (pageId === 'admire') {
+                animateAdmireItems();
+            } else if (pageId === 'quiz') {
+                loadQuiz();
+            }
+        }
+        
+        // Create floating hearts
+        function createFloatingHearts() {
+            const container = document.getElementById('floating-hearts');
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.className = 'absolute text-red-500/30 animate-float';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                container.appendChild(heart);
+            }
+        }
+        
+        // Initialize admire list
+        function initializeAdmireList() {
+            const admireList = document.getElementById('admireList');
+            admireItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'admire-item bg-white p-4 rounded-xl shadow hover:shadow-lg transform transition hover:translate-x-2 cursor-pointer';
+                div.textContent = `${index + 1}. ${item}`;
+                admireList.appendChild(div);
+            });
+        }
+        
+        // Animate admire items
+        function animateAdmireItems() {
+            const items = document.querySelectorAll('.admire-item');
+            items.forEach((item, index) => {
+                setTimeout(() => item.classList.add('show'), index * 200);
+            });
+        }
+        
+        // Typing effect for message
+        function typeMessage() {
+            const text = "Sayang,";
+            const typingText = document.getElementById('typingText');
+            const messageContent = document.getElementById('messageContent');
+            const loveSignature = document.getElementById('loveSignature');
+            
+            typingText.textContent = '';
+            let index = 0;
+        
+            function type() {
+                if (index < text.length) {
+                    typingText.textContent += text.charAt(index);
+                    index++;
+                    setTimeout(type, 100);
+                } else {
+                    messageContent.classList.add('opacity-100');
+                    setTimeout(() => {
+                        loveSignature.classList.add('opacity-100');
+                    }, 1000);
+                }
+            }
+            type();
+        }
+        
+        // Quiz functions
+        function loadQuiz() {
+            const quizContainer = document.getElementById('quizContainer');
+            if (currentQuiz < quizQuestions.length) {
+                const question = quizQuestions[currentQuiz];
+                quizContainer.innerHTML = `
+                    <h3 class="text-xl font-semibold text-gray-700">${question.question}</h3>
+                    <div class="space-y-3">
+                        ${question.options.map((option, index) => `
+                            <div onclick="checkAnswer(${index})" 
+                                class="bg-white p-4 rounded-xl shadow hover:shadow-lg hover:bg-pink-50 cursor-pointer transition">
+                                ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                showQuizResult();
+            }
+        }
+        
+        function checkAnswer(answer) {
+            const question = quizQuestions[currentQuiz];
+            if (answer === question.correct) {
+                score++;
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Benar!',
+                    text: 'Kamu memang mengenalku dengan baik! 😊',
+                    confirmButtonText: 'Lanjut',
+                    confirmButtonColor: '#F43F5E'
+                }).then(() => {
+                    currentQuiz++;
+                    loadQuiz();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ups!',
+                    text: 'Coba ingat-ingat lagi ya.. 😉',
+                    confirmButtonText: 'Coba Lagi',
+                    confirmButtonColor: '#F43F5E'
+                }).then(() => {
+                    currentQuiz++;
+                    loadQuiz();
+                });
+            }
+        }
+        
+        function showQuizResult() {
+            let message;
+            if (score === quizQuestions.length) {
+                message = 'Wow! Kamu benar-benar mengenalku! 💖';
+            } else if (score >= quizQuestions.length / 2) {
+                message = 'Lumayan juga pengetahuanmu tentangku! 😊';
+            } else {
+                message = 'Yuk, kita lebih saling mengenal lagi! 💝';
+            }
+        
+            Swal.fire({
+                icon: 'info',
+                title: 'Quiz Selesai!',
+                text: `Skor kamu: ${score} dari ${quizQuestions.length}\n${message}`,
+                confirmButtonText: 'Main Lagi',
+                confirmButtonColor: '#F43F5E',
+                showCancelButton: true,
+                cancelButtonText: 'Kembali ke Menu',
+                cancelButtonColor: '#6B7280'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    currentQuiz = 0;
+                    score = 0;
+                    loadQuiz();
+                } else {
+                    showPage('main');
+                    currentQuiz = 0;
+                    score = 0;
+                }
+            });
+        }
+        
+        // Love Calculator Function
+        function showLoveCalculator() {
+            Swal.fire({
+                title: 'Love Calculator 💕',
+                html: `
+                    <div class="space-y-4">
+                        <div>
+                            <input id="name1" class="swal2-input" placeholder="Nama Kamu">
+                        </div>
+                        <div>
+                            <input id="name2" class="swal2-input" placeholder="Nama Pasangan">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Hitung!',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#F43F5E',
+                cancelButtonColor: '#6B7280',
+                preConfirm: () => {
+                    const name1 = document.getElementById('name1').value;
+                    const name2 = document.getElementById('name2').value;
+                    if (!name1 || !name2) {
+                        Swal.showValidationMessage('Mohon isi kedua nama');
+                        return false;
+                    }
+                    return [name1, name2];
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const [name1, name2] = result.value;
+                    // Generate love percentage (rigged to always be high 😉)
+                    const basePercentage = 85;
+                    const randomAdd = Math.floor(Math.random() * 15);
+                    const lovePercentage = basePercentage + randomAdd;
+        
+                    let message;
+                    if (lovePercentage > 90) {
+                        message = 'Kalian adalah pasangan yang sempurna! 💑';
+                    } else if (lovePercentage > 80) {
+                        message = 'Cinta kalian sangat kuat! 💕';
+                    } else {
+                        message = 'Kalian memiliki chemistry yang baik! ❤️';
+                    }
+        
+                    Swal.fire({
+                        title: 'Hasil Perhitungan Cinta',
+                        html: `
+                            <div class="text-center">
+                                <div class="text-4xl font-bold text-red-500 mb-4">${lovePercentage}%</div>
+                                <div class="text-lg">${message}</div>
+                                <div class="mt-4">
+                                    ${name1} 💕 ${name2}
+                                </div>
+                            </div>
+                        `,
+                        confirmButtonColor: '#F43F5E'
+                    });
+                }
+            });
+        }
+        
+        // Firework Animation
+        function createFirework(x, y) {
+            const colors = ['#ff69b4', '#ff1493', '#ff0000', '#ff4500'];
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'firework';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = (Math.PI * 2 * i) / 20;
+                const velocity = 2 + Math.random() * 2;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity;
+                
+                document.body.appendChild(particle);
+                
+                let posX = x;
+                let posY = y;
+                let opacity = 1;
+                
+                function animate() {
+                    if (opacity <= 0) {
+                        particle.remove();
+                        return;
+                    }
+                    
+                    posX += vx;
+                    posY += vy;
+                    opacity -= 0.02;
+                    
+                    particle.style.left = posX + 'px';
+                    particle.style.top = posY + 'px';
+                    particle.style.opacity = opacity;
+                    
+                    requestAnimationFrame(animate);
+                }
+                
+                animate();
+            }
+        }
+        
+        // Add click event for firework effect
+        document.addEventListener('click', (e) => {
+            createFirework(e.clientX, e.clientY);
+        });
+        </script>
+</body>
+</html>
